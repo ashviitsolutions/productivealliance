@@ -6,9 +6,8 @@ import Addpost from './components/Admin/POST/Addpost';
 import Editpost from './components/Admin/POST/Editpost';
 import Getpost from './components/Admin/POST/Getpost';
 import Login from './components/Admin/PAGES/LOGIN/Login';
-// import Home from './components/Admin/Home';
-// import Protect from './components/Admin/PAGES/Protected/Protect';
 import Protect from './components/Admin/PAGES/Protected/Protect';
+import Errorpage from './components/Admin/PAGES/Page/Errorpage';
 
 
 function App() {
@@ -24,6 +23,7 @@ function App() {
             <Route path="/addpost" element={<Protect Component={Addpost} />} />
             <Route path="/editpage" element={<Protect Component={Editpost} />} />
             <Route path="/login" element={<Login />} />  
+            <Route path="/*" element={<Protect Component={Errorpage} />} />  
           </Routes>
         </BrowserRouter>
 
