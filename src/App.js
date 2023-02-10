@@ -12,8 +12,6 @@ import Errorpage from './components/Admin/PAGES/Page/Errorpage';
 
 function App() {
  
-  const auth=localStorage.getItem("token")
-
   return (
     <>
         <BrowserRouter>
@@ -21,7 +19,7 @@ function App() {
             <Route path="/" element={<Protect Component={Sidebar} />} />
             <Route path="/getpost" element={<Protect Component={Getpost} />}  />
             <Route path="/addpost" element={<Protect Component={Addpost} />} />
-            <Route path="/editpage" element={<Protect Component={Editpost} />} />
+            <Route path="/editpage/:id" element={<Protect Component={Editpost} />} />
             <Route path="/login" element={<Login />} />  
             <Route path="/*" element={<Protect Component={Errorpage} />} />  
           </Routes>

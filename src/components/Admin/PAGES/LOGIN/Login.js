@@ -57,7 +57,7 @@ function Login() {
 
             if (resp.status===200) {
                 localStorage.setItem("users", JSON.stringify(result));
-                localStorage.setItem("token", JSON.stringify(token));
+                localStorage.setItem("token", token);
                 nav("/")
             }else{
                 setToggle(true)

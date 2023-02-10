@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from "../../Sidebar/Sidebar"
 function Addpost() {
     const nav=useNavigate()
-
     const editor = useRef(null);
 
 
@@ -24,29 +23,40 @@ function Addpost() {
         title: Yup.string().required("Required"),
         body: Yup.string().required("Required"),
         excerpt: Yup.string().required("Required"),
-        // image: Yup.string().required("Required"),
-        // discription: Yup.string().required("Required"),
+      
 
     });
-    const onSubmit = async(values, { resetForm }) => {
-        console.log(values)
-        resetForm({ values: "" });
-        const bodyFormData = new FormData();
-        bodyFormData.append("title", values.title)
-        bodyFormData.append("body", values.body)
-        bodyFormData.append("excerpt", values.excerpt)
-        bodyFormData.append("image", values.image)
-        bodyFormData.append("description", values.description)
-        axios.post("http://45.13.132.197:4000/api/post/create", bodyFormData)
-            .then((res) => {
-                console.log(res)
-                if(res.status===200){
-                    nav("/getpost")
-                }
-
-            })
-
-    }
+    const onSubmit = async(values, { setValues, resetForm }) => {
+        console.log(values);
+        try {
+          const bodyFormData = new FormData();
+          bodyFormData.append("title", values.title);
+          bodyFormData.append("body", values.body);
+          bodyFormData.append("excerpt", values.excerpt);
+          bodyFormData.append("postImages", values.image);
+          bodyFormData.append("description", values.description);
+          let token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("Token not found in local storage");
+          }
+          console.log(token);
+          const res = await axios.post("http://45.13.132.197:4000/api/post/create", bodyFormData, {
+            headers: {
+            //   Authorization: `${token}`
+              Authorization:token
+            }
+          });
+          console.log(res);
+          if (res.status === 200) {
+            setValues({});
+            resetForm();
+            nav("/getpost");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      
     const config = {
         readonly: false,
         height: 400,

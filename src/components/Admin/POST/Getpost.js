@@ -116,39 +116,43 @@ function Getpost() {
 
 
 
-
-
-                                    <tbody id="post_container">
-                                        <tr className="wrapper" id="tr_post_77">
-                                            <td>
-                                                <div className="md-checkbox">
-                                                    <input id="i3" type="checkbox"/>
-                                                        <label htmlFor="i3"></label>
-                                                </div>
-                                            </td>
-
-
-                                            <td>
-                                                <div className="content">
-                                                    <Link to="/editpage" >
-                                                        <span className="title">some title here</span>
-                                                    </Link>
-                                                    <div className="controls">
-                                                        <Link 
-                                                         className="trash_btn anchor_lite" to="/editpage">trash</Link>
+                                {
+                                    user.map((cur , index)=>{
+                                        return(
+                                            <>
+                                            <tbody id="post_container">
+                                            <tr className="wrapper" id="tr_post_77">
+                                                <td>
+                                                    <div className="md-checkbox">
+                                                        <input id="i3" type="checkbox"/>
+                                                            <label htmlFor="i3"></label>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td>Lorem Ipsum Dolor Sit Amet, Consectetur Adipisicing Elit</td>
-                                            <td>2022-11-08 01:08:20</td>
-                                            <td>admin</td>
-                                        </tr>
+                                                </td>
+                                                <td>
+                                                    <div className="content">
+                                                        <Link to={`/editpage/${cur._id}`} >
+                                                            <span className="title">{cur.title}</span>
+                                                        </Link>
 
+                                                    </div>
+                                                </td>
+                                                <td>{cur.excerpt}</td>
+                                                <td>{cur.updatedAt}</td>
+                                                <td>admin</td>
+                                            </tr>
+    
+    
+    
+                                          
+                                        </tbody>
+    
+                                            </>
+                                        )
+                                        
+                                    })
+                                }
 
-
-                                      
-                                    </tbody>
-
+                                
 
                                 </table>
                             </div>

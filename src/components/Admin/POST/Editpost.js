@@ -1,65 +1,89 @@
-
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useRef,useState } from 'react'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
 import JoditEditor from 'jodit-react';
-import Sidebar from "../../Sidebar/Sidebar"
-
 import "./style.css"
+import { useNavigate } from 'react-router-dom';
+import Sidebar from "../../Sidebar/Sidebar"
+import { useParams } from 'react-router-dom';
 function Editpost() {
-    let title=localStorage.getItem("title")
-    let select=localStorage.getItem("select")
-    let image=localStorage.getItem("image")
-    // let discription=localStorage.getItem("image")
-
+    let params=useParams();
+    let {id}=params;
+  
+    const [user , setUser]=useState([])
+    const nav=useNavigate()
     const editor = useRef(null);
-    const [content, setContent] = useState('');
 
+    const [title, setTitle] = useState("");
 
     const initialValues = {
-        title: "",
-        bodys: "",
-        select: "",
+        title:"",
+        body: "",
+        excerpt: "",
         image: "",
-        discription: "",
+        description: "",
     };
     const SignupSchema = Yup.object().shape({
-        // title: Yup.string().required("Required"),
-        // bodys: Yup.string().email("Invalid email").required("Required"),
-        // select: Yup.string().required("Required"),
-        // image: Yup.string().required("Required"),
-        // discription: Yup.string().required("Required"),
+        title: Yup.string().required("Required"),
+        body: Yup.string().required("Required"),
+        excerpt: Yup.string().required("Required"),
+      
 
     });
-    const onSubmit = (values, { resetForm }) => {
-        // alert("clicked")
-        console.log(values)
-        resetForm({ values: "" });
-        const bodyFormData = new FormData();
-        bodyFormData.append("title", values.title)
-        bodyFormData.append("bodys", values.bodys)
-        bodyFormData.append("select", values.select)
-        bodyFormData.append("image", values.image)
-        bodyFormData.append("discription", values.content)
-        axios.put("45.13.132.197:4000/api/post/create", bodyFormData)
-            .then((res) => {
-                console.log(res)
-
-            })
-
-
-
+    const onSubmit = async(values, { setValues, resetForm }) => {
+        console.log(values);
+        try {
+          const bodyFormData = new FormData();
+          bodyFormData.append("title", values.title);
+          bodyFormData.append("body", values.body);
+          bodyFormData.append("excerpt", values.excerpt);
+          bodyFormData.append("postImages", values.image);
+          bodyFormData.append("description", values.description);
+          let token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("Token not found in local storage");
+          }
+          console.log(token);
+          let res = await axios.put(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
+            headers: {
+            //   Authorization: `${token}`
+              Authorization:token
+            }
+          });
+          console.log(res);                       
+          if (res.status === 200) {
+            setValues({});
+            resetForm("");
+            nav("/getpost");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      
+    const config = {
+        readonly: false,
+        height: 400,
+                                                 
     }
-     
 
+    useEffect(() => {
+        fetch(`http://45.13.132.197:4000/api/post/fetch/${id}`).then((res) => {
+            return res.json();
+        }).then((data) => {
+            setUser(data)
+            setTitle(data.title);
+            console.log("edit post",data)
+        })
+    }, [id])
 
 
     return (
         <>
         <Sidebar/>
             <div id="content">
-                <div className="container-fluid">
+                <div className="container-fluid">          
                     <div className="row">
                         <Formik
                             initialValues={initialValues}
@@ -68,13 +92,13 @@ function Editpost() {
 
                         >
 
-                            {({ errors, touched, setFieldValue }) => (
+                            {({ errors, touched, setFieldValue  }) => (
 
                                 <Form>
                                     <div className="">
                                         <div className="heading float_wrapper">
                                             <div className="gutter pull-left" >
-                                                <h3>Edit post</h3>
+                                                <h3>Add post</h3>
                                             </div>
                                             <span className="toggle_sidebar" ></span>
                                         </div>
@@ -91,8 +115,10 @@ function Editpost() {
                                                                 className="input"
                                                                 name="title"
                                                                 type="text"
-                                                                placeholder="Title"
+                                                                placeholder=" New Update Title"
+                                                                
                                                             />
+                                                            <pre >{user.title}</pre>
                                                             {errors.title && touched.title ? (
                                                                 <div>{errors.title}</div>
                                                             ) : null}
@@ -101,27 +127,36 @@ function Editpost() {
                                                         <div className="input_group">
                                                             <div className="input_group">
                                                                 <Field
-                                                                    value={select}
                                                                     className="input"
-                                                                    name="bodys"
+                                                                    name="body"
                                                                     type="text"
-                                                                    placeholder="Excerpt"
+                                                                    placeholder=" New Update  Excerpt"
                                                                 />
-                                                                {errors.bodys && touched.bodys ? (
-                                                                    <div>{errors.bodys}</div>
+                                                                <pre>{user.excerpt}</pre>
+                                                                {errors.body && touched.body ? (
+                                                                    <div>{errors.body}</div>
                                                                 ) : null}
                                                                 <span className="highlight"></span>
                                                             </div>
                                                         </div>
                                                         <div className="input_group">
                                                             <label htmlFor="" className="static">Description</label>
-                                                            <div className='editor' style={{ marginTop: "2vh" }}>
-                                                                <JoditEditor
+                                                            <div className='editor' style={{ marginTop: "4vh", height: "40vh" }}>
+                                                                <Field name="description" as="texarea">
+                                                                    <JoditEditor
+                                                                    name="description"
                                                                     ref={editor}
-                                                                    value={content}
-                                                                    onBlur={newContent => setContent(newContent)}
-                                                                    onChange={(e) => setContent(e.target.value)}
-                                                                />
+                                                                    value={user.description}    
+                                                                    config={config}
+                                                                    onBlur={(newContent) => {
+                                                                        setFieldValue('description', newContent);
+                                                                    }}
+                                                                    onChange={(newContent) => {
+                                                                        setFieldValue('description', newContent);
+                                                                    }}
+                                                                    />
+                                                                </Field>
+
                                                             </div>
 
                                                         </div>
@@ -145,18 +180,18 @@ function Editpost() {
                                                     <div className="inner">
                                                         <label className="card_label" htmlFor="">Select Type</label>
                                                         <div className="input_group">
-                                                            <Field name="select" as="select" className="input" value={select}>
-                                                                <option value={'select type'}>select type</option>
-                                                                <option value={'Home'}>Home</option>
-                                                                <option value={'Banner'}>Banner</option>
-                                                                <option value={'select'}>Offer Post</option>
-                                                                <option value={'select'}>Join Our Team</option>
-                                                                <option value={'select'}>Corporate Events</option>
-                                                                <option value={'select'}>Private Events</option>
-                                                                <option value={'select'}>Massage On Demand</option>
-                                                                <option value={'select'}>Policies</option>
-                                                                <option value={'select'}>Become a Member</option>
-                                                            </Field>
+                                                        <Field name="excerpt" as="select" className="input" >
+                                                        <option value="">Select Type</option>
+                                                        <option value="Home">Home</option>
+                                                        <option value="Banner">Banner</option>
+                                                        <option value="Offer Post">Offer Post</option>
+                                                        <option value="Join Our Team">Join Our Team</option>
+                                                        <option value="Corporate Events">Corporate Events</option>
+                                                        <option value="Private Events">Private Events</option>
+                                                        <option value="Massage On Demand">Massage On Demand</option>
+                                                        <option value="Policies">Policies</option>
+                                                        <option value="Become a Member">Become a Member</option>
+                                                      </Field>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -164,7 +199,7 @@ function Editpost() {
                                                     <div className="inner">
                                                         <label htmlFor="" className="card_label">Attachments</label>
                                                         <input
-                                                            value={image}
+                                                           name='image'
                                                             type="file"
                                                             placeholder="Excerpt"
                                                             onChange={(e) => {
