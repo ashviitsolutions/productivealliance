@@ -15,7 +15,6 @@ function Editpost() {
     const nav=useNavigate()
     const editor = useRef(null);
 
-    const [title, setTitle] = useState("");
 
     const initialValues = {
         title:"",
@@ -73,7 +72,7 @@ function Editpost() {
             return res.json();
         }).then((data) => {
             setUser(data)
-            setTitle(data.title);
+         
             console.log("edit post",data)
         })
     }, [id])
@@ -111,7 +110,7 @@ function Editpost() {
                                                         <label className="card_label" htmlFor="">General InhtmlFormation</label>
                                                         <div className="input_group">
                                                             <Field
-                                                               value={title}
+                                                            
                                                                 className="input"
                                                                 name="title"
                                                                 type="text"
