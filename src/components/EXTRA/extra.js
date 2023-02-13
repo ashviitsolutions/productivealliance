@@ -10,8 +10,8 @@ import Sidebar from "../../Sidebar/Sidebar"
 
 const PreviewImage = ({ imagePreviewUrl }) => {
     return (
-        <div style={{width:"20vh",heigh:"10vh"}} className="previwimage">
-            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" style={{height:'29vh'}} />}
+        <div>
+            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" />}
         </div>
     );
 };
@@ -73,7 +73,6 @@ function Addpost() {
 
     return (
         <>
-     
         <Sidebar/>
             <div id="content">
                 <div className="container-fluid">          
@@ -211,7 +210,7 @@ function Addpost() {
 
 
                                                     </div>
-                                                    <div className='preview' >
+                                                    <div className='preview'>
                                                     <PreviewImage imagePreviewUrl={imagePreviewUrl} />
 
                                                  </div>

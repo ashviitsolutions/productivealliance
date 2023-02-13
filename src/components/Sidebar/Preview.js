@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState } from 'react';
 import "./style.css"
 import { Link } from 'react-router-dom'
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -12,10 +13,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import HailIcon from '@mui/icons-material/Hail';
 import images from "../img/logo.png"
 // import { useNavigate } from 'react-router-dom';
-// import MenuIcon from '@mui/icons-material/Menu';
-// import CloseIcon from '@mui/icons-material/Close';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 
 function Sidebar() {
+  const [IsOpen, setIsOpen] = useState(false);
+  const toggle = () => setIsOpen(!IsOpen);
+
+
+
+  
 
 
   const logout = () => {
@@ -23,15 +30,28 @@ function Sidebar() {
   }
   return (
     <>
-      
-      <div id="sidebar" className='active'>
+      <div className="nav-icons" >
+        {
+
+          !IsOpen ? <MenuIcon onClick={toggle} /> :
+            <CloseIcon onClick={toggle} />
+
+        }
+
+      </div>
+
+
+      <div id={!IsOpen ? "sidebar" : "sedemobile"} className="active">
+
         <div className="card layer1">
-          
+          <div className="nav-icon"  style={{color:"#ffff"}}>
+            <CloseIcon onClick={toggle} />
+          </div>
           <div className="infobox_big avatar" id='avtar'>
             <img src={images} alt="..." style={{ height: "50px", marginTop: "10px" }} />
             <div className="item" style={{ marginTop: "5px" }}>
               <span className="title">admin</span>
-              <span className="excerpt">7654171126</span>
+              <span className="excerpt">9876543210</span>
 
             </div>
             <span className="toggle_sidebar close" ></span>
@@ -101,7 +121,6 @@ function Sidebar() {
           </div>
         </div>
       </div>
-
     </>
   )
 }

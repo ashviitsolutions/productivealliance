@@ -7,14 +7,18 @@ import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from "../../Sidebar/Sidebar"
 import { useParams } from 'react-router-dom';
-function Editpost() {
+function Editpost(props) {
     let params=useParams();
     let {id}=params;
   
     const [user , setUser]=useState([])
+    const [formValue , setFormValue]=useState(null)
+
+    const [ images, setImages]=useState([])
     const nav=useNavigate()
     const editor = useRef(null);
 
+  console.log("media/"+images)
 
     const initialValues = {
         title:"",
@@ -23,6 +27,7 @@ function Editpost() {
         image: "",
         description: "",
     };
+ 
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
         body: Yup.string().required("Required"),
@@ -46,7 +51,6 @@ function Editpost() {
           console.log(token);
           let res = await axios.put(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
             headers: {
-            //   Authorization: `${token}`
               Authorization:token
             }
           });
@@ -71,9 +75,17 @@ function Editpost() {
         fetch(`http://45.13.132.197:4000/api/post/fetch/${id}`).then((res) => {
             return res.json();
         }).then((data) => {
+            console.log(data)
             setUser(data)
-         
-            console.log("edit post",data)
+            setImages(data.attachments[0])
+            const updatedSavedValues = {
+                title: data.title,
+                body: data.body,
+                excerpt: data.excerpt,
+                image: data.image,
+                description: data.description,
+            };
+            setFormValue(updatedSavedValues);
         })
     }, [id])
 
@@ -85,9 +97,10 @@ function Editpost() {
                 <div className="container-fluid">          
                     <div className="row">
                         <Formik
-                            initialValues={initialValues}
+                            initialValues={formValue || initialValues}
                             validationSchema={SignupSchema}
                             onSubmit={onSubmit}
+                            enableReinitialize
 
                         >
 
@@ -117,7 +130,7 @@ function Editpost() {
                                                                 placeholder=" New Update Title"
                                                                 
                                                             />
-                                                            <pre >{user.title}</pre>
+                                                          
                                                             {errors.title && touched.title ? (
                                                                 <div>{errors.title}</div>
                                                             ) : null}
@@ -126,12 +139,13 @@ function Editpost() {
                                                         <div className="input_group">
                                                             <div className="input_group">
                                                                 <Field
+                                                                 
                                                                     className="input"
                                                                     name="body"
                                                                     type="text"
                                                                     placeholder=" New Update  Excerpt"
                                                                 />
-                                                                <pre>{user.excerpt}</pre>
+                                                            
                                                                 {errors.body && touched.body ? (
                                                                     <div>{errors.body}</div>
                                                                 ) : null}
@@ -177,6 +191,7 @@ function Editpost() {
                                                 </div>
                                                 <div className="card layer1">
                                                     <div className="inner">
+                                                   
                                                         <label className="card_label" htmlFor="">Select Type</label>
                                                         <div className="input_group">
                                                         <Field name="excerpt" as="select" className="input" >
@@ -213,7 +228,10 @@ function Editpost() {
 
 
                                                     </div>
+                                                <img src={`media/${images}`} alt=''   style={{height:"50vh"}}/>
+
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                     </div>

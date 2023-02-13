@@ -78,7 +78,7 @@ function Login() {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-sm-4 col-sm-offset-4">
-                            <div className="head">
+                            <div className="head" style={{textAlign:"center"}}>
                                 <h3>welcome !</h3>
                                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et.</p>
                             </div>
