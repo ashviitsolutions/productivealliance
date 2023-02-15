@@ -30,4 +30,9 @@
 .mobileview{
     display: block;
 }
+.button.small {
+    font-size: 10px;
+    padding: 1em 2.0em;
+}
+
 }

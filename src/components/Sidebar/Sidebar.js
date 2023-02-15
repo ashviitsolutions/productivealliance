@@ -14,6 +14,7 @@ import images from "../img/logo.png"
 // import { useNavigate } from 'react-router-dom';
 // import MenuIcon from '@mui/icons-material/Menu';
 // import CloseIcon from '@mui/icons-material/Close';
+import Mobile from './Mobile';
 
 function Sidebar() {
 
@@ -23,7 +24,7 @@ function Sidebar() {
   }
   return (
     <>
-      
+      <Mobile/>
       <div id="sidebar" className='active'>
         <div className="card layer1">
           

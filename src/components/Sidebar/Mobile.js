@@ -16,7 +16,7 @@ import images from "../img/logo.png"
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
-function Sidebar() {
+function Mobile() {
     const [IsOpen, setIsOpen] = useState(false);
     const toggle = () => setIsOpen(!IsOpen);
 
@@ -123,4 +123,4 @@ function Sidebar() {
     )
 }
 
-export default Sidebar
+export default Mobile

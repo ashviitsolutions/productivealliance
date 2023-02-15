@@ -1,5 +1,4 @@
-
-import React, { useRef,useState } from 'react'
+import React, { useEffect, useRef,useState } from 'react'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
@@ -7,26 +6,29 @@ import JoditEditor from 'jodit-react';
 import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from "../../Sidebar/Sidebar"
+import { useParams } from 'react-router-dom';
+function Editpost() {
+    const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+    let params=useParams();
+    let {id}=params;
+  
+    const [url , setUrl]=useState("")
+    const [user , setUser]=useState([])
+    const [formValue , setFormValue]=useState(null)
 
-const PreviewImage = ({ imagePreviewUrl }) => {
-    return (
-        <div>
-            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" />}
-        </div>
-    );
-};
-function Addpost() {
+    const [ images, setImages]=useState([])
     const nav=useNavigate()
     const editor = useRef(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-
+  console.log(images)
+// alert(url)
     const initialValues = {
-        title: "",
+        title:"",
         body: "",
         excerpt: "",
         image: "",
         description: "",
     };
+ 
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
         body: Yup.string().required("Required"),
@@ -48,16 +50,15 @@ function Addpost() {
             throw new Error("Token not found in local storage");
           }
           console.log(token);
-          const res = await axios.post("http://45.13.132.197:4000/api/post/create", bodyFormData, {
+          let res = await axios.post(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
             headers: {
-            //   Authorization: `${token}`
               Authorization:token
             }
           });
-          console.log(res);
+          console.log(res);                       
           if (res.status === 200) {
             setValues({});
-            resetForm();
+            resetForm("");
             nav("/getpost");
           }
         } catch (error) {
@@ -71,6 +72,37 @@ function Addpost() {
                                                  
     }
 
+    useEffect(() => {
+        fetch(`http://45.13.132.197:4000/api/post/fetch/${id}`).then((res) => {
+            return res.json();
+        }).then((data) => {
+            console.log(data)
+            setUser(data)
+            setImages(data.attachments[0])
+            const updatedSavedValues = {
+                title: data.title,
+                body: data.body,
+                excerpt: data.excerpt,
+                image: data.image,
+                description: data.description,
+            };
+            setFormValue(updatedSavedValues);
+        })
+    }, [id])
+
+
+    useEffect(() => {
+        axios.get(`http://45.13.132.197:4000/api/file/${images}`)
+        .then((res)=>{
+            console.log("Hiiiii" , res)
+            setUrl(res.data)
+        })
+           
+     
+
+    }, [images])
+
+
     return (
         <>
         <Sidebar/>
@@ -78,19 +110,20 @@ function Addpost() {
                 <div className="container-fluid">          
                     <div className="row">
                         <Formik
-                            initialValues={initialValues}
+                            initialValues={formValue || initialValues}
                             validationSchema={SignupSchema}
                             onSubmit={onSubmit}
+                            enableReinitialize
 
                         >
 
-                            {({ errors, touched, setFieldValue , values }) => (
+                            {({ errors, touched, setFieldValue  }) => (
 
                                 <Form>
                                     <div className="">
                                         <div className="heading float_wrapper">
                                             <div className="gutter pull-left" >
-                                                <h3>Add post</h3>
+                                                <h3>Edit post</h3>
                                             </div>
                                             <span className="toggle_sidebar" ></span>
                                         </div>
@@ -103,11 +136,14 @@ function Addpost() {
                                                         <label className="card_label" htmlFor="">General InhtmlFormation</label>
                                                         <div className="input_group">
                                                             <Field
+                                                            
                                                                 className="input"
                                                                 name="title"
                                                                 type="text"
-                                                                placeholder="Title"
+                                                                placeholder=" New Update Title"
+                                                                
                                                             />
+                                                          
                                                             {errors.title && touched.title ? (
                                                                 <div>{errors.title}</div>
                                                             ) : null}
@@ -116,11 +152,13 @@ function Addpost() {
                                                         <div className="input_group">
                                                             <div className="input_group">
                                                                 <Field
+                                                                 
                                                                     className="input"
                                                                     name="body"
                                                                     type="text"
-                                                                    placeholder="Excerpt"
+                                                                    placeholder=" New Update  Excerpt"
                                                                 />
+                                                            
                                                                 {errors.body && touched.body ? (
                                                                     <div>{errors.body}</div>
                                                                 ) : null}
@@ -134,7 +172,7 @@ function Addpost() {
                                                                     <JoditEditor
                                                                     name="description"
                                                                     ref={editor}
-                                                                    value={values.description}
+                                                                    value={user.description}    
                                                                     config={config}
                                                                     onBlur={(newContent) => {
                                                                         setFieldValue('description', newContent);
@@ -166,9 +204,10 @@ function Addpost() {
                                                 </div>
                                                 <div className="card layer1">
                                                     <div className="inner">
+                                                   
                                                         <label className="card_label" htmlFor="">Select Type</label>
                                                         <div className="input_group">
-                                                        <Field name="excerpt" as="select" className="input">
+                                                        <Field name="excerpt" as="select" className="input" >
                                                         <option value="">Select Type</option>
                                                         <option value="Home">Home</option>
                                                         <option value="Banner">Banner</option>
@@ -203,18 +242,13 @@ function Addpost() {
                                                             }
                                                             }
                                                         />
-                                                        {errors.image && touched.image ? (
-                                                            <div>{errors.image}</div>
-                                                        ) : null}
-
 
 
                                                     </div>
-                                                    <div className='preview'>
-                                                    <PreviewImage imagePreviewUrl={imagePreviewUrl} />
+                                                    {url && <img src={url} alt="Preview" />}
 
-                                                 </div>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -239,4 +273,4 @@ function Addpost() {
     )
 }
 
-export default Addpost
+export default Editpost

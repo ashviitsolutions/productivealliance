@@ -155,67 +155,51 @@
     display: flex;
 
 }
-
-.nav-icons{
+.mobile-icon{
     position: relative;
-    left: 109vh;
+    margin: 10px;
     display: none;
-    /* color: #ffff; */
-    color: black;
+    margin: 10px;
+}
 
-  }
-  .nav-icon{
-    position: relative;
-    padding-left: 150px;
+.mobilemenu{
+   position: relative;
+   float: right;
+   margin: 10px;
+   z-index: 100;
+   display: none;
+}
+.nav-icon{
+
+    display: none;
+}
+.active{
     display: block;
-   
-  }
-  .nav-iconss{
-    display: none;
-    
-  }
-  .mobilemenu{
-    display: none;
-  }
+}
 @media only screen and (min-width:320px) and (max-width:770px){
-    .mobilemenu{
+    .nav-icon{
+        position: relative;
+        padding-left: 140px;
+        /* left: 10vh; */
         display: block;
     }
-  #sidebar{
-    display: none;
-  }
-  .nav-iconss{
-    display: block;
     
-  }
-  .nav-icon{
-    position: relative;
-    padding-left: 150px;
-    display: block;
-   
-  }
-  .nav-icons{
-    position: relative;
-    left: 70vh;
-    /* color: #ffff; */
-    color: black;
-    display: block !important;
-   
-  }
+    .mobile-icon{
+        position: relative;
+        margin: 10px;
+        display: block;
+    }
 
-
-  .card.layer1 {
-   
-    display: block;
-}
-
-#content {
-    position: relative;
-    display: block;
-    padding: 0px 10px;
-    left: 200px;
-    width: calc(100%);
-}
-
-
+    #sidebar{
+        display: none;
+    }
+ 
+    .mobilemenu{
+        position: relative;
+        float: left;
+        margin: 10px;
+        z-index: 100;
+        display: block;
+     }
+    
 }

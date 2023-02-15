@@ -7,18 +7,25 @@ import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from "../../Sidebar/Sidebar"
 import { useParams } from 'react-router-dom';
-function Editpost(props) {
+
+const PreviewImage = ({ imagePreviewUrl }) => {
+    return (
+        <div style={{width:"100%",heigh:"10vh", backgroundSize:"cover"}} className="previwimage">
+            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" style={{height:'29vh'}} />}
+        </div>
+    );
+};
+function Editpost() {
     let params=useParams();
     let {id}=params;
-  
+    const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
     const [user , setUser]=useState([])
     const [formValue , setFormValue]=useState(null)
 
     const [ images, setImages]=useState([])
     const nav=useNavigate()
     const editor = useRef(null);
-
-  console.log("media/"+images)
+    const [img, setImg] = useState();
 
     const initialValues = {
         title:"",
@@ -49,7 +56,7 @@ function Editpost(props) {
             throw new Error("Token not found in local storage");
           }
           console.log(token);
-          let res = await axios.put(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
+          let res = await axios.post(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
             headers: {
               Authorization:token
             }
@@ -90,6 +97,25 @@ function Editpost(props) {
     }, [id])
 
 
+
+    const fetchImage = async () => {
+        const res = await fetch(`http://45.13.132.197:4000/api/file/${images}`);
+        const imageBlob = await res.blob();
+        const imageObjectURL = URL.createObjectURL(imageBlob);
+        setImg(imageObjectURL);
+      };
+    
+      useEffect(() => {
+        fetchImage();
+      }, [images]);
+
+
+
+
+
+
+
+
     return (
         <>
         <Sidebar/>
@@ -110,7 +136,7 @@ function Editpost(props) {
                                     <div className="">
                                         <div className="heading float_wrapper">
                                             <div className="gutter pull-left" >
-                                                <h3>Add post</h3>
+                                                <h3>Edit post</h3>
                                             </div>
                                             <span className="toggle_sidebar" ></span>
                                         </div>
@@ -213,22 +239,31 @@ function Editpost(props) {
                                                     <div className="inner">
                                                         <label htmlFor="" className="card_label">Attachments</label>
                                                         <input
-                                                           name='image'
-                                                            type="file"
-                                                            placeholder="Excerpt"
-                                                            onChange={(e) => {
-                                                                setFieldValue('image', e.target.files[0])
-                                                            }
-                                                            }
-                                                        />
+                                                        name='image'
+                                                         type="file"
+                                                         placeholder="Excerpt"
+                                                         onChange={(e) => {
+                                                             let reader = new FileReader();
+                                                             let file = e.target.files[0];
+                                                     
+                                                             reader.onloadend = () => {
+                                                                 setImagePreviewUrl(reader.result);
+                                                             };
+                                                     
+                                                             reader.readAsDataURL(file);
+                                                             setFieldValue('image', file)
+                                                         }
+                                                         }
+                                                     />
                                                         {errors.image && touched.image ? (
                                                             <div>{errors.image}</div>
                                                         ) : null}
 
-
-
                                                     </div>
-                                                <img src={`media/${images}`} alt=''   style={{height:"50vh"}}/>
+                                                    <div className='preview'  style={{width:"100%"}}>
+                                                    <PreviewImage imagePreviewUrl={imagePreviewUrl || img} />
+
+                                                 </div>
 
                                                 </div>
                                                 

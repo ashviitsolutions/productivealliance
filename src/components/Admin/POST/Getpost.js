@@ -1,33 +1,38 @@
-import React, { useEffect, useState } from 'react'
+
+import React, { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-// import axios from 'axios'
 import Sidebar from "../../Sidebar/Sidebar"
 import ReactPaginate from 'react-paginate';
 import "./style.css"
 
-
 function Getpost() {
-    const [user, setUser] = useState([])
+  const [user, setUser] = useState([]);
+  const [data, setData] = useState(1);
+  const [count, setCount] = useState(0);
 
-    const [data, setData] = useState(1)
+  useEffect(() => {
+    fetchData();
+  }, [data]);
 
-    useEffect(() => {
-        fetch("http://45.13.132.197:4000/api/post/fetch").then((res) => {
-            return res.json();
-        }).then((data) => {
-            setUser(data)
-            console.log(data)
-        })
-    }, [data])
-
-    const Total = user.length;
-  
-    const handlePageClick = (data) => {
-        setData(data.selected)
-        console.log(data.selected)
-       
+  const fetchData = async () => {
+    try {
+      const res = await fetch("http://45.13.132.197:4000/api/post/fetch");
+      const data = await res.json();
+      setUser(data);
+      setCount(data.length);
+      console.log(data)
+    } catch (error) {
+      console.log(error);
     }
+  };
 
+  const handlePageClick = (data) => {
+    setData(data.selected + 1);
+  };
+
+  const memoizedUser = useMemo(() => {
+    return user.slice((data - 1) * 10, data * 10);
+  }, [user, data]);
 
 
 
@@ -114,68 +119,52 @@ function Getpost() {
 
 
 
-                                {
-                                    user.map((cur, index) => {
-                                        return (
-                                            <>
-                                                <tbody id="post_container">
-                                                    <tr className="wrapper" id="tr_post_77">
-                                                        <td>
-                                                            <div className="md-checkbox">
-                                                                <input id="i3" type="checkbox" />
-                                                                <label htmlFor="i3"></label>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div className="content">
-                                                                <Link to={`/editpage/${cur._id}`} >
-                                                                    <span className="title">{cur.title}</span>
-                                                                </Link>
-
-                                                            </div>
-                                                        </td>
-                                                        <td>{cur.excerpt}</td>
-                                                        <td>{cur.updatedAt}</td>
-                                                        <td>admin</td>
-                                                    </tr>
-
-
-
-
-                                                </tbody>
-
-                                            </>
-                                        )
-
-                                    })
-                                }
-
-
+                                {memoizedUser.map((cur, index) => {
+                                    return (
+                                      <tr key={index}>
+                                        <td>
+                                          <div className="md-checkbox">
+                                            <input id={`i${index}`} type="checkbox" />
+                                            <label htmlFor={`i${index}`}></label>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <div className="content">
+                                            <Link to={`/editpage/${cur._id}`}>
+                                              <span className="title">{cur.title}</span>
+                                            </Link>
+                                          </div>
+                                        </td>
+                                        <td>{cur.excerpt}</td>
+                                        <td>{cur.updatedAt}</td>
+                                        <td>admin</td>
+                                      </tr>
+                                    )
+                                  })}
 
                             </table>
                             <div className='pagination'  >
                             <ReactPaginate
-                               
-                                   previousLabel={'Previous'}
-                                   nextLabel={'Next'}
-                                   breakLabel={"..."}
-                                   pageCount={Total/5}
-                                   marginPagesDisplayed={3}
-                                   pageRangeDisplayed={2}
-                                   onPageChange={handlePageClick}
-                                   renderOnZeroPageCount={null}
-                                   containerClassName={'pagination justify-content-center py-3'}
-                                   pageClassName={'page-item'}
-                                   pageLinkClassName={'page-link'}
-                                   previousClassName={'page-item'}
-                                   previousLinkClassName={'page-link'}
-                                   nextClassName={'page-item'}
-                                   nextLinkClassName={'page-link'}
-                                   breakClassName={'page-item'}
-                                   breakLinkClassName={'page-link'}
-                                   activeClassName={'active'}
-               
-                               />
+                            itemsPerPage={10}
+                            previousLabel={'Previous'}
+                            nextLabel={'Next'}
+                            breakLabel={"..."}
+                            pageCount={Math.ceil(count/10)}
+                            marginPagesDisplayed={3}
+                            pageRangeDisplayed={2}
+                            onPageChange={handlePageClick}
+                            // css apply on pagination
+                            containerClassName={'pagination justify-content-center py-3'}
+                            pageClassName={'page-item'}
+                            pageLinkClassName={'page-link'}
+                            previousClassName={'page-item'}
+                            previousLinkClassName={'page-link'}
+                            nextClassName={'page-item'}
+                            nextLinkClassName={'page-link'}
+                            breakClassName={'page-item'}
+                            breakLinkClassName={'page-link'}
+                            activeClassName={'active'}
+                          />
                             </div>
                         </div>
                     </div>
