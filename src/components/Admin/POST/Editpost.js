@@ -1,4 +1,4 @@
-import React, { useEffect, useRef,useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
@@ -10,72 +10,77 @@ import { useParams } from 'react-router-dom';
 
 const PreviewImage = ({ imagePreviewUrl }) => {
     return (
-        <div style={{width:"100%",heigh:"10vh", backgroundSize:"cover"}} className="previwimage">
-            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" style={{height:'29vh'}} />}
+        <div style={{ width: "100%", heigh: "10vh", backgroundSize: "cover" }} className="previwimage">
+            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Preview" style={{ height: '29vh' }} />}
         </div>
     );
 };
 function Editpost() {
-    let params=useParams();
-    let {id}=params;
+    let params = useParams();
+    let { id } = params;
     const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-    const [user , setUser]=useState([])
-    const [formValue , setFormValue]=useState(null)
+    const [user, setUser] = useState([])
+    const [formValue, setFormValue] = useState(null)
+    const [type , setType]=useState([])
 
-    const [ images, setImages]=useState([])
-    const nav=useNavigate()
+    const [images, setImages] = useState([])
+    const nav = useNavigate()
     const editor = useRef(null);
     const [img, setImg] = useState();
 
+   console.log("img", type)
+
     const initialValues = {
-        title:"",
-        body: "",
+        title: "",
         excerpt: "",
+        type: "",
         image: "",
         description: "",
     };
- 
+
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
-        body: Yup.string().required("Required"),
         excerpt: Yup.string().required("Required"),
-      
+        type: Yup.string().required("Required"),
+
 
     });
-    const onSubmit = async(values, { setValues, resetForm }) => {
+    const onSubmit = async (values, { setValues, resetForm }) => {
         console.log(values);
         try {
-          const bodyFormData = new FormData();
-          bodyFormData.append("title", values.title);
-          bodyFormData.append("body", values.body);
-          bodyFormData.append("excerpt", values.excerpt);
-          bodyFormData.append("postImages", values.image);
-          bodyFormData.append("description", values.description);
-          let token = localStorage.getItem("token");
-          if (!token) {
-            throw new Error("Token not found in local storage");
-          }
-          console.log(token);
-          let res = await axios.post(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
-            headers: {
-              Authorization:token
+            const bodyFormData = new FormData();
+            bodyFormData.append("title", values.title);
+            bodyFormData.append("excerpt", values.excerpt);
+            bodyFormData.append("type", values.type);
+            bodyFormData.append("postImages", values.image);
+            bodyFormData.append("description", values.description);
+            let token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("Token not found in local storage");
             }
-          });
-          console.log(res);                       
-          if (res.status === 200) {
-            setValues({});
-            resetForm("");
-            nav("/getpost");
-          }
+            console.log(token);
+            let res = await axios.post(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
+                headers: {
+                    Authorization: token,
+                    // 'Content-Type': 'application/json',
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log(res);
+            if (res.status === 200) {
+                setValues({});
+                resetForm("");
+                nav("/getpost");
+            }
         } catch (error) {
-          console.error(error);
+            console.error(error);
         }
-      };
-      
+    };
+
     const config = {
         readonly: false,
         height: 400,
-                                                 
+
     }
 
     useEffect(() => {
@@ -84,11 +89,11 @@ function Editpost() {
         }).then((data) => {
             console.log(data)
             setUser(data)
-            setImages(data.attachments[0])
+            setImages(data.attachments)
             const updatedSavedValues = {
                 title: data.title,
-                body: data.body,
                 excerpt: data.excerpt,
+                type: data.type,
                 image: data.image,
                 description: data.description,
             };
@@ -98,29 +103,35 @@ function Editpost() {
 
 
 
-    const fetchImage = async () => {
-        const res = await fetch(`http://45.13.132.197:4000/api/file/${images}`);
-        const imageBlob = await res.blob();
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-        setImg(imageObjectURL);
-      };
-    
-      useEffect(() => {
+    useEffect(() => {
+        const fetchImage = async () => {
+          const res = await fetch(`http://45.13.132.197:4000/api/file/${images}`);
+          const imageBlob = await res.blob();
+          const imageObjectURL = URL.createObjectURL(imageBlob);
+          setImg(imageObjectURL);
+        };
         fetchImage();
       }, [images]);
-
-
-
-
+      
+      
+    useEffect(() => {
+        fetch(`http://45.13.132.197:4000/api/terms/fetch`).then((res) => {
+            return res.json();
+        }).then((data) => {
+            setType(data)
+            console.log("type", data)
+     
+        })
+    }, [])
 
 
 
 
     return (
         <>
-        <Sidebar/>
+            <Sidebar />
             <div id="content">
-                <div className="container-fluid">          
+                <div className="container-fluid">
                     <div className="row">
                         <Formik
                             initialValues={formValue || initialValues}
@@ -130,7 +141,7 @@ function Editpost() {
 
                         >
 
-                            {({ errors, touched, setFieldValue  }) => (
+                            {({ errors, touched, setFieldValue }) => (
 
                                 <Form>
                                     <div className="">
@@ -149,14 +160,14 @@ function Editpost() {
                                                         <label className="card_label" htmlFor="">General InhtmlFormation</label>
                                                         <div className="input_group">
                                                             <Field
-                                                            
+
                                                                 className="input"
                                                                 name="title"
                                                                 type="text"
                                                                 placeholder=" New Update Title"
-                                                                
+
                                                             />
-                                                          
+
                                                             {errors.title && touched.title ? (
                                                                 <div>{errors.title}</div>
                                                             ) : null}
@@ -165,15 +176,15 @@ function Editpost() {
                                                         <div className="input_group">
                                                             <div className="input_group">
                                                                 <Field
-                                                                 
+
                                                                     className="input"
-                                                                    name="body"
+                                                                    name="excerpt"
                                                                     type="text"
                                                                     placeholder=" New Update  Excerpt"
                                                                 />
-                                                            
-                                                                {errors.body && touched.body ? (
-                                                                    <div>{errors.body}</div>
+
+                                                                {errors.excerpt && touched.excerpt ? (
+                                                                    <div>{errors.excerpt}</div>
                                                                 ) : null}
                                                                 <span className="highlight"></span>
                                                             </div>
@@ -183,16 +194,16 @@ function Editpost() {
                                                             <div className='editor' style={{ marginTop: "4vh", height: "40vh" }}>
                                                                 <Field name="description" as="texarea">
                                                                     <JoditEditor
-                                                                    name="description"
-                                                                    ref={editor}
-                                                                    value={user.description}    
-                                                                    config={config}
-                                                                    onBlur={(newContent) => {
-                                                                        setFieldValue('description', newContent);
-                                                                    }}
-                                                                    onChange={(newContent) => {
-                                                                        setFieldValue('description', newContent);
-                                                                    }}
+                                                                        name="description"
+                                                                        ref={editor}
+                                                                        value={user.description}
+                                                                        config={config}
+                                                                        onBlur={(newContent) => {
+                                                                            setFieldValue('description', newContent);
+                                                                        }}
+                                                                        onChange={(newContent) => {
+                                                                            setFieldValue('description', newContent);
+                                                                        }}
                                                                     />
                                                                 </Field>
 
@@ -216,57 +227,52 @@ function Editpost() {
                                                     </div>
                                                 </div>
                                                 <div className="card layer1">
-                                                    <div className="inner">
-                                                   
-                                                        <label className="card_label" htmlFor="">Select Type</label>
-                                                        <div className="input_group">
-                                                        <Field name="excerpt" as="select" className="input" >
-                                                        <option value="">Select Type</option>
-                                                        <option value="Home">Home</option>
-                                                        <option value="Banner">Banner</option>
-                                                        <option value="Offer Post">Offer Post</option>
-                                                        <option value="Join Our Team">Join Our Team</option>
-                                                        <option value="Corporate Events">Corporate Events</option>
-                                                        <option value="Private Events">Private Events</option>
-                                                        <option value="Massage On Demand">Massage On Demand</option>
-                                                        <option value="Policies">Policies</option>
-                                                        <option value="Become a Member">Become a Member</option>
-                                                      </Field>
-                                                        </div>
+                                                <div className="inner">
+                                                    <label className="card_label" htmlFor="">Select Type</label>
+                                                    <div className="input_group">
+                                                    <Field name="type" as="select" className="input">
+                                                    <option value="">Select Type</option>
+                                                    {type.map((cur) => (
+                                                        <option key={cur._id} value={cur._id}>
+                                                            {cur.name}
+                                                        </option>
+                                                    ))}
+                                                  </Field>
                                                     </div>
                                                 </div>
+                                            </div>
                                                 <div className="card layer1">
                                                     <div className="inner">
                                                         <label htmlFor="" className="card_label">Attachments</label>
                                                         <input
-                                                        name='image'
-                                                         type="file"
-                                                         placeholder="Excerpt"
-                                                         onChange={(e) => {
-                                                             let reader = new FileReader();
-                                                             let file = e.target.files[0];
-                                                     
-                                                             reader.onloadend = () => {
-                                                                 setImagePreviewUrl(reader.result);
-                                                             };
-                                                     
-                                                             reader.readAsDataURL(file);
-                                                             setFieldValue('image', file)
-                                                         }
-                                                         }
-                                                     />
+                                                            name='image'
+                                                            type="file"
+                                                            placeholder="Excerpt"
+                                                            onChange={(e) => {
+                                                                let reader = new FileReader();
+                                                                let file = e.target.files[0];
+
+                                                                reader.onloadend = () => {
+                                                                    setImagePreviewUrl(reader.result);
+                                                                };
+
+                                                                reader.readAsDataURL(file);
+                                                                setFieldValue('image', file)
+                                                            }
+                                                            }
+                                                        />
                                                         {errors.image && touched.image ? (
                                                             <div>{errors.image}</div>
                                                         ) : null}
 
                                                     </div>
-                                                    <div className='preview'  style={{width:"100%"}}>
-                                                    <PreviewImage imagePreviewUrl={imagePreviewUrl || img} />
+                                                    <div className='preview' style={{ width: "100%" }}>
+                                                        <PreviewImage imagePreviewUrl={imagePreviewUrl || img} />
 
-                                                 </div>
+                                                    </div>
 
                                                 </div>
-                                                
+
                                             </div>
                                         </div>
                                     </div>

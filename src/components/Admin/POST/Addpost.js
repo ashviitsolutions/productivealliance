@@ -1,5 +1,5 @@
 
-import React, { useRef,useState } from 'react'
+import React, { useRef,useState , useEffect } from 'react'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
@@ -19,18 +19,19 @@ function Addpost() {
     const nav=useNavigate()
     const editor = useRef(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+    const [type , setType]=useState([])
 
     const initialValues = {
         title: "",
-        body: "",
         excerpt: "",
+        type: "",
         image: "",
         description: "",
     };
     const SignupSchema = Yup.object().shape({
         title: Yup.string().required("Required"),
-        body: Yup.string().required("Required"),
         excerpt: Yup.string().required("Required"),
+        type: Yup.string().required("Required"),
       
 
     });
@@ -39,8 +40,8 @@ function Addpost() {
         try {
           const bodyFormData = new FormData();
           bodyFormData.append("title", values.title);
-          bodyFormData.append("body", values.body);
           bodyFormData.append("excerpt", values.excerpt);
+          bodyFormData.append("type", values.type);
           bodyFormData.append("postImages", values.image);
           bodyFormData.append("description", values.description);
           let token = localStorage.getItem("token");
@@ -71,6 +72,25 @@ function Addpost() {
                                                  
     }
 
+
+
+    useEffect(() => {
+        fetch(`http://45.13.132.197:4000/api/terms/fetch`).then((res) => {
+            return res.json();
+        }).then((data) => {
+            setType(data)
+            console.log(data)
+     
+        })
+    }, [])
+
+
+
+
+
+
+
+    
     return (
         <>
      
@@ -118,12 +138,12 @@ function Addpost() {
                                                             <div className="input_group">
                                                                 <Field
                                                                     className="input"
-                                                                    name="body"
+                                                                    name="excerpt"
                                                                     type="text"
                                                                     placeholder="Excerpt"
                                                                 />
-                                                                {errors.body && touched.body ? (
-                                                                    <div>{errors.body}</div>
+                                                                {errors.excerpt && touched.excerpt ? (
+                                                                    <div>{errors.excerpt}</div>
                                                                 ) : null}
                                                                 <span className="highlight"></span>
                                                             </div>
@@ -165,21 +185,18 @@ function Addpost() {
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                                 <div className="card layer1">
                                                     <div className="inner">
                                                         <label className="card_label" htmlFor="">Select Type</label>
                                                         <div className="input_group">
-                                                        <Field name="excerpt" as="select" className="input">
+                                                        <Field name="type" as="select" className="input">
                                                         <option value="">Select Type</option>
-                                                        <option value="Home">Home</option>
-                                                        <option value="Banner">Banner</option>
-                                                        <option value="Offer Post">Offer Post</option>
-                                                        <option value="Join Our Team">Join Our Team</option>
-                                                        <option value="Corporate Events">Corporate Events</option>
-                                                        <option value="Private Events">Private Events</option>
-                                                        <option value="Massage On Demand">Massage On Demand</option>
-                                                        <option value="Policies">Policies</option>
-                                                        <option value="Become a Member">Become a Member</option>
+                                                        {type.map((cur) => (
+                                                            <option key={cur._id} value={cur._id}>
+                                                                {cur.name}
+                                                            </option>
+                                                        ))}
                                                       </Field>
                                                         </div>
                                                     </div>
