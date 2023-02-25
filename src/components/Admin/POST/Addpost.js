@@ -29,9 +29,9 @@ function Addpost() {
         description: "",
     };
     const SignupSchema = Yup.object().shape({
-        title: Yup.string().required("Required"),
-        excerpt: Yup.string().required("Required"),
-        type: Yup.string().required("Required"),
+        // title: Yup.string().required("Required"),
+        // excerpt: Yup.string().required("Required"),
+        // type: Yup.string().required("Required"),
       
 
     });

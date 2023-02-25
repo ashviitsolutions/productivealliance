@@ -27,7 +27,8 @@ const PreviewImage = ({ attachments }) => {
 };
 
 function Getpost() {
-
+  const [type, setType] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
 
   const [user, setUser] = useState([]);
   const [data, setData] = useState(1);
@@ -59,7 +60,17 @@ function Getpost() {
   }, [user, data]);
 
 
-
+  useEffect(() => {
+    fetch(`http://45.13.132.197:4000/api/terms/fetch`)
+      .then((res) => res.json())
+      .then((data) => {
+        setType(data);
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
 
   return (
@@ -97,17 +108,18 @@ function Getpost() {
                   <span className="highlight"></span>
                 </div>
                 <div className="input_group">
-                  <select name="" id="" className="input">
+                  <select
+                    id="select-type"
+                    value={selectedType}
+                    onChange={(e) => setSelectedType(e.target.value)}
+                    className="input"
+                  >
                     <option value="">select type</option>
-                    <option value="">Home</option>
-                    <option value="">Banner</option>
-                    <option value="">Offer Post</option>
-                    <option value="">Join Our Team</option>
-                    <option value="">Corporate Events</option>
-                    <option value="">Private Events</option>
-                    <option value="">Massage On Demand</option>
-                    <option value="">Policies</option>
-                    <option value="">Become a Member</option>
+                    {type.map((cur) => (
+                      <option key={cur._id} value={cur._id}>
+                        {cur.name}
+                      </option>
+                    ))}
                   </select>
                   <span className="highlight"></span>
                 </div>
@@ -155,31 +167,31 @@ function Getpost() {
                         </div>
                       </td>
                       <td>
-                      <div className="card layer1">
-                      <div className="inner">
-                        <label htmlFor="" className="card_label"></label>
-                        <div className='preview' style={{ width: "100%", height: "20vh" }}>
-                          <PreviewImage attachments={cur.attachments} />
+                        <div className="card layer1">
+                          <div className="inner">
+                            <label htmlFor="" className="card_label"></label>
+                            <div className='preview' style={{ width: "100%", height: "20vh" }}>
+                              <PreviewImage attachments={cur.attachments} />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
 
 
 
-                       
+
                       </td>
                       <td>
-                      <div className="content">
-                      <Link to={`/editpage/${cur._id}`}>
-                        <span className="title">{cur.title}</span>
-                      </Link>
-                    </div>
+                        <div className="content">
+                          <Link to={`/editpage/${cur._id}`}>
+                            <span className="title">{cur.title}</span>
+                          </Link>
+                        </div>
                       </td>
                       <td dangerouslySetInnerHTML={{ __html: cur.description }} />
                       <td>{cur.type.name}</td>
 
-                      
+
 
                     </tr>
                   )

@@ -39,9 +39,9 @@ function Editpost() {
     };
 
     const SignupSchema = Yup.object().shape({
-        title: Yup.string().required("Required"),
-        excerpt: Yup.string().required("Required"),
-        type: Yup.string().required("Required"),
+        // title: Yup.string().required("Required"),
+        // excerpt: Yup.string().required("Required"),
+        // type: Yup.string().required("Required"),
 
 
     });
@@ -93,7 +93,7 @@ function Editpost() {
             const updatedSavedValues = {
                 title: data.title,
                 excerpt: data.excerpt,
-                type: data.type,
+                type: data.type.name,
                 image: data.image,
                 description: data.description,
             };
@@ -230,7 +230,7 @@ function Editpost() {
                                                 <div className="inner">
                                                     <label className="card_label" htmlFor="">Select Type</label>
                                                     <div className="input_group">
-                                                    <Field name="type" as="select" className="input">
+                                                    <Field name="type" as="select" className="input" >
                                                     <option value="">Select Type</option>
                                                     {type.map((cur) => (
                                                         <option key={cur._id} value={cur._id}>
