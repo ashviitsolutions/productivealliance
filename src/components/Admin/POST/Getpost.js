@@ -20,13 +20,21 @@ const PreviewImage = ({ attachments }) => {
   }, [attachments]);
 
   return (
-    <div style={{ width: "100%", height: "10vh", backgroundSize: "cover" }} className="previewimage">
-      {imageObjectURL && <img src={imageObjectURL} alt="Preview" style={{ height: '20vh' }} />}
+    <div  >
+      {imageObjectURL && <img src={imageObjectURL} alt="Preview" className="previewimage" />}
     </div>
   );
 };
 
+
+
+
 function Getpost() {
+  const [search, setSearch] = useState("")
+  const [Delete, setDelete] = useState([])
+
+
+
   const [type, setType] = useState([]);
   const [selectedType, setSelectedType] = useState("");
 
@@ -34,22 +42,24 @@ function Getpost() {
   const [data, setData] = useState(1);
   const [count, setCount] = useState(0);
 
-  const fetchData = async () => {
-    try {
-      const res = await fetch("http://45.13.132.197:4000/api/post/fetch");
-      const data = await res.json();
-      setUser(data);
-      setCount(data.length);
-      console.log(" get Data", data)
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  // alert(selectedType)
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`http://45.13.132.197:4000/api/post/fetch?type=${selectedType || search}`);
+        const data = await res.json();
+        setUser(data);
+        setCount(data.length);
+        console.log(" get Data", data)
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fetchData();
-  }, [data]);
+  }, [data, search, selectedType]);
+
 
   const handlePageClick = (data) => {
     setData(data.selected + 1);
@@ -58,6 +68,7 @@ function Getpost() {
   const memoizedUser = useMemo(() => {
     return user.slice((data - 1) * 10, data * 10);
   }, [user, data]);
+
 
 
   useEffect(() => {
@@ -72,7 +83,25 @@ function Getpost() {
       });
   }, []);
 
-
+  const handleDelete = (id) => {
+    let token = localStorage.getItem("token");
+    fetch(`http://45.13.132.197:4000/api/post/${id}/remove_post`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setDelete(data);
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  
   return (
     <>
       <Sidebar />
@@ -98,15 +127,7 @@ function Getpost() {
           <div className="row">
             <div className="gutter">
               <div className="card layer1 filters">
-                <div className="input_group">
-                  <select name="" id="" className="input">
-                    <option value="">status</option>
-                    <option value="">draft</option>
-                    <option value="">published</option>
-                    <option value="">trashed</option>
-                  </select>
-                  <span className="highlight"></span>
-                </div>
+
                 <div className="input_group">
                   <select
                     id="select-type"
@@ -123,12 +144,11 @@ function Getpost() {
                   </select>
                   <span className="highlight"></span>
                 </div>
-                <div className="input_group">
-                  <input type="date" className="input" placeholder="Start Date" />
-                  <span className="highlight"></span>
-                </div>
+
                 <div className="input_group pull-right" >
-                  <input type="text" className="input" placeholder="search here.." />
+                  <input type="text" className="input" placeholder="search here.."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)} />
                   <span className="highlight"></span>
                 </div>
               </div>
@@ -139,15 +159,8 @@ function Getpost() {
               <table className="table-responsive ultra_responsive">
                 <thead>
                   <tr>
-                    <th>
-                      <div className="md-checkbox">
-                        <input id="i3" type="checkbox" />
-                        <label htmlFor="i3"></label>
-                      </div>
-                    </th>
                     <th>Image</th>
-                    <th>Title</th>
-                    <th>Description</th>
+                    <th>Title/Description</th>
                     <th>Type</th>
                   </tr>
                 </thead>
@@ -161,38 +174,34 @@ function Getpost() {
                   return (
                     <tr key={index}>
                       <td>
-                        <div className="md-checkbox">
-                          <input id={`i${index}`} type="checkbox" />
-                          <label htmlFor={`i${index}`}></label>
-                        </div>
-                      </td>
-                      <td>
                         <div className="card layer1">
                           <div className="inner">
                             <label htmlFor="" className="card_label"></label>
-                            <div className='preview' style={{ width: "100%", height: "20vh" }}>
-                              <PreviewImage attachments={cur.attachments} />
+                            <div className='preview' style={{ width: "100%", height: "20vh", backgroundSize: "cover" }}>
+                              <PreviewImage className="PreviewImage" attachments={cur.attachments} />
                             </div>
                           </div>
                         </div>
-
-
-
-
-
                       </td>
                       <td>
                         <div className="content">
-                          <Link to={`/editpage/${cur._id}`}>
-                            <span className="title">{cur.title}</span>
-                          </Link>
+                          <span className="title " id='headingtitle'>{cur.title}</span>
+                          <p className="description" dangerouslySetInnerHTML={{ __html: cur.description }} />
                         </div>
                       </td>
-                      <td dangerouslySetInnerHTML={{ __html: cur.description }} />
-                      <td>{cur.type.name}</td>
+
+                      <td>
+                        <div className='typefield' >
+                          <span style={{ display: "block" }}> {cur.type.name}</span>
+                          <Link to={`/editpage/${cur._id}`} >
+                            <span className="Edit mt-3">Edit Page</span>
+                            <button onClick={() => handleDelete(cur._id)}  className="Edit mt-3">Delete</button>
+
+                          </Link>
+                        </div>
 
 
-
+                      </td>
                     </tr>
                   )
                 })}

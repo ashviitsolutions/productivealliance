@@ -93,7 +93,7 @@ function Editpost() {
             const updatedSavedValues = {
                 title: data.title,
                 excerpt: data.excerpt,
-                type: data.type.name,
+                type: data.type._id,
                 image: data.image,
                 description: data.description,
             };
@@ -231,12 +231,13 @@ function Editpost() {
                                                     <label className="card_label" htmlFor="">Select Type</label>
                                                     <div className="input_group">
                                                     <Field name="type" as="select" className="input" >
-                                                    <option value="">Select Type</option>
+                                                    <option value="" disabled>Select Type</option>
                                                     {type.map((cur) => (
-                                                        <option key={cur._id} value={cur._id}>
+                                                        <option key={cur._id} value={cur._id} disabled>
                                                             {cur.name}
                                                         </option>
                                                     ))}
+                                             
                                                   </Field>
                                                     </div>
                                                 </div>
