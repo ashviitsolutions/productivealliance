@@ -79,7 +79,7 @@ function Addpost() {
             return res.json();
         }).then((data) => {
             setType(data)
-            console.log(data)
+            console.log("data", data)
      
         })
     }, [])

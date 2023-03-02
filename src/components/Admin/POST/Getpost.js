@@ -135,6 +135,7 @@ function Getpost() {
                     onChange={(e) => setSelectedType(e.target.value)}
                     className="input"
                   >
+                  
                     <option value="">select type</option>
                     {type.map((cur) => (
                       <option key={cur._id} value={cur._id}>
@@ -170,7 +171,13 @@ function Getpost() {
 
 
 
-                {memoizedUser.map((cur, index) => {
+                {memoizedUser.filter((values)=>{
+                  if(search===""){
+                    return values;
+                  }else if (values.type.name.toLowerCase().includes(search.toLocaleLowerCase())) {
+                      return values
+                  }
+                }).map((cur, index) => {
                   return (
                     <tr key={index}>
                       <td>
