@@ -31,7 +31,7 @@ const PreviewImage = ({ attachments }) => {
 
 function Getpost() {
   const [search, setSearch] = useState("")
-  const [Delete, setDelete] = useState([])
+  // const [Delete, setDelete] = useState([])
 
 
 
@@ -51,9 +51,7 @@ function Getpost() {
         const data = await res.json();
         setUser(data);
         setCount(data.length);
-        console.log(" get Data", data)
       } catch (error) {
-        console.log(error);
       }
     };
 
@@ -76,31 +74,29 @@ function Getpost() {
       .then((res) => res.json())
       .then((data) => {
         setType(data);
-        console.log(data);
       })
       .catch((error) => {
-        console.log(error);
       });
   }, []);
 
-  const handleDelete = (id) => {
-    let token = localStorage.getItem("token");
-    fetch(`http://45.13.132.197:4000/api/post/${id}/remove_post`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDelete(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  // const handleDelete = (id) => {
+  //   let token = localStorage.getItem("token");
+  //   fetch(`http://45.13.132.197:4000/api/post/${id}/remove_post`, {
+  //     method: "DELETE",
+  //     headers: {
+  //       Authorization: token,
+  //       'Content-Type': 'multipart/form-data'
+  //     }
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setDelete(data);
+  //       console.log(data);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
   
   return (
     <>

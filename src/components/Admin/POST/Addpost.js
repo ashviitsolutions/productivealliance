@@ -36,7 +36,6 @@ function Addpost() {
 
     });
     const onSubmit = async(values, { setValues, resetForm }) => {
-        console.log(values);
         try {
           const bodyFormData = new FormData();
           bodyFormData.append("title", values.title);
@@ -79,7 +78,6 @@ function Addpost() {
             return res.json();
         }).then((data) => {
             setType(data)
-            console.log("data", data)
      
         })
     }, [])

@@ -84,7 +84,7 @@ function Mobile() {
                                 </Link>
                             </div>
                             <div className="item">
-                                <Link to="services.php">
+                                <Link to="/services">
                                     <MedicalServicesIcon style={{ color: "#fff" }} />
                                     <span className="title">services</span>
                                 </Link>

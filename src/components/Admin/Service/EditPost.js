@@ -3,7 +3,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from 'axios';
 import JoditEditor from 'jodit-react';
-import "./style.css"
+// import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import Sidebar from "../../Sidebar/Sidebar"
 import { useParams } from 'react-router-dom';
@@ -21,20 +21,22 @@ function Editpost() {
     const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
     const [user, setUser] = useState([])
     const [formValue, setFormValue] = useState(null)
-    const [type , setType]=useState([])
+    const [type, setType] = useState([])
 
     const [images, setImages] = useState([])
     const nav = useNavigate()
     const editor = useRef(null);
     const [img, setImg] = useState();
 
+    console.log("img", type)
 
     const initialValues = {
         title: "",
         excerpt: "",
-        type: "",
+        category: "",
         image: "",
         description: "",
+        price: ""
     };
 
     const SignupSchema = Yup.object().shape({
@@ -45,11 +47,13 @@ function Editpost() {
 
     });
     const onSubmit = async (values, { setValues, resetForm }) => {
+        console.log(values);
         try {
             const bodyFormData = new FormData();
             bodyFormData.append("title", values.title);
             bodyFormData.append("excerpt", values.excerpt);
-            bodyFormData.append("type", values.type);
+            bodyFormData.append("category", values.category);
+            bodyFormData.append("price", values.price);
             bodyFormData.append("postImages", values.image);
             bodyFormData.append("description", values.description);
             let token = localStorage.getItem("token");
@@ -57,7 +61,7 @@ function Editpost() {
                 throw new Error("Token not found in local storage");
             }
             console.log(token);
-            let res = await axios.post(`http://45.13.132.197:4000/api/post/update-post/${id}`, bodyFormData, {
+            let res = await axios.put(`http://45.13.132.197:4000/api/service/${id}/update`, bodyFormData, {
                 headers: {
                     Authorization: token,
                     // 'Content-Type': 'application/json',
@@ -68,7 +72,7 @@ function Editpost() {
             if (res.status === 200) {
                 setValues({});
                 resetForm("");
-                nav("/getpost");
+                nav("/services");
             }
         } catch (error) {
             console.error(error);
@@ -82,17 +86,19 @@ function Editpost() {
     }
 
     useEffect(() => {
-        fetch(`http://45.13.132.197:4000/api/post/fetch/${id}`).then((res) => {
+        fetch(`http://45.13.132.197:4000/api/service/fetch/${id}`).then((res) => {
             return res.json();
         }).then((data) => {
+            console.log(data)                                                
             setUser(data)
             setImages(data.attachments)
             const updatedSavedValues = {
                 title: data.title,
                 excerpt: data.excerpt,
-                type: data.type._id,
+                category: data.category,
                 image: data.image,
                 description: data.description,
+                price:data.price
             };
             setFormValue(updatedSavedValues);
         })
@@ -102,21 +108,24 @@ function Editpost() {
 
     useEffect(() => {
         const fetchImage = async () => {
-          const res = await fetch(`http://45.13.132.197:4000/api/file/${images}`);
-          const imageBlob = await res.blob();
-          const imageObjectURL = URL.createObjectURL(imageBlob);
-          setImg(imageObjectURL);
+            const res = await fetch(`http://45.13.132.197:4000/api/file/${images}`);
+            const imageBlob = await res.blob();
+            const imageObjectURL = URL.createObjectURL(imageBlob);
+            setImg(imageObjectURL);
         };
         fetchImage();
-      }, [images]);
-      
-      
+    }, [images]);
+
+
+
+
     useEffect(() => {
         fetch(`http://45.13.132.197:4000/api/terms/fetch`).then((res) => {
             return res.json();
         }).then((data) => {
             setType(data)
-     
+            console.log("type", data)
+
         })
     }, [])
 
@@ -204,10 +213,23 @@ function Editpost() {
                                                                 </Field>
 
                                                             </div>
-
+                                                        
                                                         </div>
+                                                        
                                                     </div>
                                                 </div>
+                                                <div class="input_group" style={{ marginTop: "3rem" }}>
+                                                <Field
+                                                  className="input"
+                                                  name="price"
+                                                  type="number"
+                                                />
+                                                {errors.price && touched.price ? (
+                                                  <div>{errors.price}</div>
+                                                ) : null}
+                                                <label htmlFor="">price in USD</label>
+                                                <span class="highlight"></span>
+                                              </div>
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
@@ -223,21 +245,18 @@ function Editpost() {
                                                     </div>
                                                 </div>
                                                 <div className="card layer1">
-                                                <div className="inner">
-                                                    <label className="card_label" htmlFor="">Select Type</label>
-                                                    <div className="input_group">
-                                                    <Field name="type" as="select" className="input" >
-                                                    <option value="" disabled>Select Type</option>
-                                                    {type.map((cur) => (
-                                                        <option key={cur._id} value={cur._id} disabled>
-                                                            {cur.name}
-                                                        </option>
-                                                    ))}
-                                             
-                                                  </Field>
+                                                    <div className="inner">
+                                                        <label className="card_label" htmlFor="">Select Type</label>
+                                                        <div className="input_group">
+                                                            <Field name="category" as="select" className="input">
+                                                                <option value="">Select Type</option>
+                                                                <option value="on demand">on demand</option>
+                                                                <option value="corporate events">corporate events</option>
+                                                                <option value="private events">private events</option>
+                                                            </Field>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                                 <div className="card layer1">
                                                     <div className="inner">
                                                         <label htmlFor="" className="card_label">Attachments</label>
